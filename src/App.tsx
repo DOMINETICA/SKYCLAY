@@ -257,6 +257,12 @@ const AppContent = ({ introActive, setIntroActive }: { introActive: boolean; set
             ref={webcamRef}
             audio={false}
             className={`webcam-preview ${handsActive ? 'hands-active' : ''}`}
+            videoConstraints={{
+              width: 640,
+              height: 480,
+              facingMode: "user"
+            }}
+            playsInline
           />
           <HandOverlay />
         </div>

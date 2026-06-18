@@ -258,14 +258,23 @@ export const HandTrackingProvider = ({ children, enabled = true }: { children: R
       if (webcamRef.current?.video) {
         camera = new window.Camera(webcamRef.current.video, {
           onFrame: async () => {
-            if (webcamRef.current?.video) {
-              await hands.send({ image: webcamRef.current.video });
+            const video = webcamRef.current?.video;
+            if (video && video.readyState === 4) {
+              try {
+                await hands.send({ image: video });
+              } catch (err) {
+                console.error("MediaPipe send error:", err);
+              }
             }
           },
           width: 640,
           height: 480,
         });
-        camera.start().then(() => { if (isActive) setIsCameraReady(true); });
+        camera.start().then(() => { 
+          if (isActive) setIsCameraReady(true); 
+        }).catch((err: any) => {
+          console.error("Camera start failed:", err);
+        });
       }
     };
 
