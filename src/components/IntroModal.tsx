@@ -21,7 +21,7 @@ const SLIDES = [
         anim: 'pinch',
         color: '#80ffdb',
         label: 'Pinch + drag',
-        hint: 'Move left or right to push and pull the clay surface at any height',
+        hint: 'Move right hand left or right to push and pull the clay surface at any height',
       },
       {
         emoji: '✊',
