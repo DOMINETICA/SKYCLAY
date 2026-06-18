@@ -15,7 +15,7 @@ export const PotteryWheel = forwardRef<PotteryWheelHandle>((_props, ref) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
   const cursorRef = useRef<THREE.Mesh>(null);
-  const { rightHand, isPaused, textureMode, glazeMode } = useHandTracking();
+  const { rightHand, isPaused, textureMode } = useHandTracking();
 
   const initialRadius = 2.5;
   const height = 10;
@@ -26,124 +26,73 @@ export const PotteryWheel = forwardRef<PotteryWheelHandle>((_props, ref) => {
     return new Float32Array(heightSegments + 1).fill(initialRadius);
   }, [heightSegments, initialRadius]);
 
-  // Pre-generate procedural textures for all 6 glazes
-  const textures = useMemo(() => {
-    const createTexture = (glazeId: string) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 512;
-      const ctx = canvas.getContext('2d')!;
+  // Procedural terracotta texture — rich organic details
+  const clayTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
 
-      // 1. Base Colors and details
-      if (glazeId === 'terracotta') {
-        ctx.fillStyle = '#b85c4a';
-        ctx.fillRect(0, 0, 512, 512);
+    // Base Terracotta orange
+    ctx.fillStyle = '#b85c4a';
+    ctx.fillRect(0, 0, 512, 512);
 
-        // Vertical streaks (rough clay)
-        for (let i = 0; i < 80; i++) {
-          const x = Math.random() * 512;
-          const w = 3 + Math.random() * 18;
-          const light = Math.random() > 0.5;
-          ctx.fillStyle = light
-            ? `rgba(232, 178, 140, 0.04)`
-            : `rgba(90, 38, 24, 0.05)`;
-          ctx.fillRect(x, 0, w, 512);
-        }
-      } else if (glazeId === 'speckled') {
-        ctx.fillStyle = '#e6dfd3'; // oatmeal cream
-        ctx.fillRect(0, 0, 512, 512);
+    // Warm gradients (simulating natural clay variation)
+    const grad = ctx.createLinearGradient(0, 0, 512, 512);
+    grad.addColorStop(0, 'rgba(235, 185, 150, 0.08)');
+    grad.addColorStop(0.5, 'rgba(0, 0, 0, 0.05)');
+    grad.addColorStop(1, 'rgba(90, 38, 24, 0.12)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 512);
 
-        // Dark speckles
-        for (let i = 0; i < 400; i++) {
-          const x = Math.random() * 512;
-          const y = Math.random() * 512;
-          const r = 0.5 + Math.random() * 1.5;
-          ctx.fillStyle = Math.random() > 0.3 ? 'rgba(54, 43, 33, 0.25)' : 'rgba(102, 85, 68, 0.15)';
-          ctx.beginPath();
-          ctx.arc(x, y, r, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (glazeId === 'cobalt') {
-        ctx.fillStyle = '#1a3375'; // Cobalt Blue
-        ctx.fillRect(0, 0, 512, 512);
+    // Vertical grain / streaks
+    for (let i = 0; i < 90; i++) {
+      const x = Math.random() * 512;
+      const w = 2 + Math.random() * 15;
+      const light = Math.random() > 0.5;
+      ctx.fillStyle = light
+        ? `rgba(232, 178, 140, 0.05)`
+        : `rgba(90, 38, 24, 0.06)`;
+      ctx.fillRect(x, 0, w, 512);
+    }
 
-        // Soft hand-painted radial streaks
-        for (let i = 0; i < 60; i++) {
-          const x = Math.random() * 512;
-          const w = 4 + Math.random() * 20;
-          ctx.fillStyle = Math.random() > 0.5
-            ? 'rgba(38, 70, 150, 0.08)'
-            : 'rgba(8, 20, 60, 0.09)';
-          ctx.fillRect(x, 0, w, 512);
-        }
-      } else if (glazeId === 'celadon') {
-        ctx.fillStyle = '#b5cfc0'; // Celadon Jade
-        ctx.fillRect(0, 0, 512, 512);
+    // Wet clay irregular blotches
+    for (let i = 0; i < 180; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      const r = 6 + Math.random() * 26;
+      const rGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
+      const light = Math.random() > 0.45;
+      rGrad.addColorStop(0, light ? 'rgba(226, 162, 122, 0.06)' : 'rgba(98, 44, 30, 0.06)');
+      rGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rGrad;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
 
-        // Subtle crackle lines
-        ctx.strokeStyle = 'rgba(125, 145, 130, 0.12)';
-        ctx.lineWidth = 1.0;
-        for (let i = 0; i < 15; i++) {
-          let cx = Math.random() * 512;
-          let cy = 0;
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          for (let j = 0; j < 6; j++) {
-            cx += (Math.random() - 0.5) * 40;
-            cy += 85;
-            ctx.lineTo(cx, cy);
-          }
-          ctx.stroke();
-        }
-      } else if (glazeId === 'porcelain') {
-        ctx.fillStyle = '#ffffff'; // White porcelain
-        ctx.fillRect(0, 0, 512, 512);
+    // Dark iron speckles (stoneware grain)
+    for (let i = 0; i < 350; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      const r = 0.4 + Math.random() * 1.2;
+      ctx.fillStyle = Math.random() > 0.3 ? 'rgba(54, 43, 33, 0.22)' : 'rgba(102, 85, 68, 0.12)';
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
-        // Soft gray streaks (marbling / throwing lines)
-        for (let i = 0; i < 40; i++) {
-          const x = Math.random() * 512;
-          const w = 2 + Math.random() * 10;
-          ctx.fillStyle = `rgba(200, 200, 205, 0.03)`;
-          ctx.fillRect(x, 0, w, 512);
-        }
-      } else if (glazeId === 'bronze') {
-        ctx.fillStyle = '#2d2722'; // Deep metallic bronze
-        ctx.fillRect(0, 0, 512, 512);
+    // Fine concentric throwing lines (ridges left while spinning)
+    for (let y = 8; y < 512; y += 10 + Math.random() * 16) {
+      ctx.fillStyle = 'rgba(70, 28, 18, 0.03)';
+      ctx.fillRect(0, y, 512, 1 + Math.random() * 1.5);
+      ctx.fillStyle = 'rgba(235, 185, 150, 0.02)';
+      ctx.fillRect(0, y + 1.5, 512, 1);
+    }
 
-        // Gold/Metallic brushed streaks
-        for (let i = 0; i < 80; i++) {
-          const x = Math.random() * 512;
-          const w = 3 + Math.random() * 15;
-          ctx.fillStyle = Math.random() > 0.5
-            ? 'rgba(184, 134, 11, 0.06)'
-            : 'rgba(15, 12, 10, 0.15)';
-          ctx.fillRect(x, 0, w, 512);
-        }
-      }
-
-      // 2. Common throwing lines (soft ridges left by fingers during spinning)
-      for (let y = 8; y < 512; y += 12 + Math.random() * 18) {
-        ctx.fillStyle = `rgba(0, 0, 0, ${glazeId === 'porcelain' ? 0.01 : 0.02})`;
-        ctx.fillRect(0, y, 512, 1 + Math.random() * 1.5);
-        ctx.fillStyle = `rgba(255, 255, 255, ${glazeId === 'porcelain' ? 0.015 : 0.01})`;
-        ctx.fillRect(0, y + 2, 512, 1);
-      }
-
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.anisotropy = 4;
-      return tex;
-    };
-
-    return {
-      terracotta: createTexture('terracotta'),
-      speckled:   createTexture('speckled'),
-      cobalt:     createTexture('cobalt'),
-      celadon:    createTexture('celadon'),
-      porcelain:  createTexture('porcelain'),
-      bronze:     createTexture('bronze'),
-    };
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
   }, []);
 
   const smoothY = useRef(0.5);
@@ -154,59 +103,6 @@ export const PotteryWheel = forwardRef<PotteryWheelHandle>((_props, ref) => {
   const prevFistY = useRef<number | null>(null);
   const fistLostFrames = useRef<number>(0);
   const prevTextureMode = useRef('none');
-  const prevGlazeMode = useRef('terracotta');
-  const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
-
-  const updateMaterial = (glazeId: string) => {
-    const mat = materialRef.current;
-    if (!mat) return;
-
-    const tex = textures[glazeId as keyof typeof textures] || textures.terracotta;
-
-    mat.map = tex;
-    mat.bumpMap = tex;
-    mat.bumpScale = glazeId === 'bronze' ? 0.02 : glazeId === 'porcelain' ? 0.015 : 0.05;
-
-    // Reset default properties
-    mat.clearcoat = 0.0;
-    mat.clearcoatRoughness = 0.0;
-    mat.transmission = 0.0;
-    mat.thickness = 0.0;
-    mat.roughness = 0.55;
-    mat.metalness = 0.0;
-    mat.color.set('#ffffff');
-
-    if (glazeId === 'terracotta') {
-      mat.roughness = 0.75;
-      mat.metalness = 0.02;
-    } else if (glazeId === 'speckled') {
-      mat.roughness = 0.6;
-      mat.clearcoat = 0.4;
-      mat.clearcoatRoughness = 0.2;
-    } else if (glazeId === 'cobalt') {
-      mat.roughness = 0.15;
-      mat.clearcoat = 1.0;
-      mat.clearcoatRoughness = 0.05;
-    } else if (glazeId === 'celadon') {
-      mat.roughness = 0.2;
-      mat.clearcoat = 1.0;
-      mat.clearcoatRoughness = 0.08;
-      mat.transmission = 0.25;
-      mat.thickness = 0.8;
-    } else if (glazeId === 'porcelain') {
-      mat.roughness = 0.1;
-      mat.clearcoat = 1.0;
-      mat.clearcoatRoughness = 0.02;
-      mat.transmission = 0.15;
-      mat.thickness = 0.5;
-    } else if (glazeId === 'bronze') {
-      mat.roughness = 0.35;
-      mat.metalness = 0.9;
-      mat.clearcoat = 0.1;
-    }
-
-    mat.needsUpdate = true;
-  };
 
   useImperativeHandle(ref, () => ({
     reset: () => { radiusProfile.fill(initialRadius); dirty.current = true; heightTarget.current = 1.0; },
@@ -287,13 +183,6 @@ export const PotteryWheel = forwardRef<PotteryWheelHandle>((_props, ref) => {
     const rh = rightHand.current;
     const paused = !!isPaused.current;
     const currentTexMode = textureMode.current ?? 'none';
-    const currentGlazeMode = glazeMode.current ?? 'terracotta';
-
-    // Update material properties if glaze changes or on first run
-    if (currentGlazeMode !== prevGlazeMode.current || !materialRef.current?.map) {
-      prevGlazeMode.current = currentGlazeMode;
-      updateMaterial(currentGlazeMode);
-    }
 
     // Mark dirty when texture mode changes so geometry re-bakes the pattern
     if (currentTexMode !== prevTextureMode.current) {
@@ -398,21 +287,23 @@ export const PotteryWheel = forwardRef<PotteryWheelHandle>((_props, ref) => {
         const theta = Math.atan2(currentZ, currentX);
         let texDisp = 0;
 
+        // Envelope so displacement fades smoothly to 0 at the extreme top/bottom
+        const envelope = Math.sin(heightT * Math.PI);
+
         switch (currentTexMode) {
           case 'ripple':
-            texDisp = Math.sin(heightT * Math.PI * 14) * 0.15;
+            // Rounded concentric grooves with fading envelope
+            texDisp = Math.sin(heightT * Math.PI * 16) * 0.15 * envelope;
             break;
+          case 'flutes': {
+            // Flat-bottomed vertical ribbed grooves using power scale
+            const wave = Math.sin(theta * 8);
+            texDisp = Math.sign(wave) * Math.pow(Math.abs(wave), 0.5) * 0.12 * envelope;
+            break;
+          }
           case 'spiral':
-            texDisp = Math.sin(heightT * Math.PI * 8 + theta * 2) * 0.12;
-            break;
-          case 'flutes':
-            texDisp = Math.sin(theta * 12) * 0.10;
-            break;
-          case 'knurl':
-            texDisp = Math.sin(heightT * Math.PI * 10) * Math.sin(theta * 10) * 0.10;
-            break;
-          case 'bamboo':
-            texDisp = Math.abs(Math.sin(heightT * Math.PI * 8)) * 0.12 - 0.02;
+            // Twisting spiral helical thread climbing up the vase
+            texDisp = Math.sin(heightT * Math.PI * 6 - theta * 2) * 0.12 * envelope;
             break;
         }
 
@@ -445,7 +336,13 @@ export const PotteryWheel = forwardRef<PotteryWheelHandle>((_props, ref) => {
       <mesh ref={meshRef} castShadow receiveShadow>
         <cylinderGeometry args={[initialRadius, initialRadius, height, radialSegments, heightSegments, true]} />
         <meshPhysicalMaterial
-          ref={materialRef}
+          map={clayTexture}
+          bumpMap={clayTexture}
+          bumpScale={0.04}
+          roughness={0.55}
+          metalness={0.02}
+          clearcoat={0.28}
+          clearcoatRoughness={0.45}
           side={THREE.DoubleSide}
         />
       </mesh>

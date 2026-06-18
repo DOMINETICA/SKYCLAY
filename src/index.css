@@ -405,20 +405,6 @@ body, html {
   margin-top: 0.5rem;
 }
 
-/* ─── Texture Sections ─── */
-.texture-section-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: -0.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding-bottom: 0.25rem;
-  width: 624px;
-  text-align: left;
-}
-
 /* ─── Texture Cards ─── */
 .texture-cards {
   display: flex;
@@ -479,73 +465,6 @@ body, html {
   font-size: 0.65rem;
   color: #80ffdb;
   font-weight: 700;
-}
-
-/* ─── Glaze Custom Selections ─── */
-.texture-card.glaze-terracotta.selected {
-  border-color: #b85c4a;
-  background: rgba(184, 92, 74, 0.18);
-  box-shadow: 0 0 20px rgba(184, 92, 74, 0.25);
-}
-.texture-card.glaze-terracotta.selected .texture-card-name,
-.texture-card.glaze-terracotta.selected .texture-card-symbol,
-.texture-card.glaze-terracotta.selected .texture-card-tick {
-  color: #c96d5b;
-}
-
-.texture-card.glaze-speckled.selected {
-  border-color: #e6dfd3;
-  background: rgba(230, 223, 211, 0.15);
-  box-shadow: 0 0 20px rgba(230, 223, 211, 0.2);
-}
-.texture-card.glaze-speckled.selected .texture-card-name,
-.texture-card.glaze-speckled.selected .texture-card-symbol,
-.texture-card.glaze-speckled.selected .texture-card-tick {
-  color: #e6dfd3;
-}
-
-.texture-card.glaze-cobalt.selected {
-  border-color: #5d83e6;
-  background: rgba(26, 51, 117, 0.28);
-  box-shadow: 0 0 20px rgba(93, 131, 230, 0.3);
-}
-.texture-card.glaze-cobalt.selected .texture-card-name,
-.texture-card.glaze-cobalt.selected .texture-card-symbol,
-.texture-card.glaze-cobalt.selected .texture-card-tick {
-  color: #8fa9ff;
-}
-
-.texture-card.glaze-celadon.selected {
-  border-color: #a5c8b0;
-  background: rgba(165, 200, 176, 0.2);
-  box-shadow: 0 0 20px rgba(165, 200, 176, 0.25);
-}
-.texture-card.glaze-celadon.selected .texture-card-name,
-.texture-card.glaze-celadon.selected .texture-card-symbol,
-.texture-card.glaze-celadon.selected .texture-card-tick {
-  color: #bce6cc;
-}
-
-.texture-card.glaze-porcelain.selected {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
-}
-.texture-card.glaze-porcelain.selected .texture-card-name,
-.texture-card.glaze-porcelain.selected .texture-card-symbol,
-.texture-card.glaze-porcelain.selected .texture-card-tick {
-  color: #ffffff;
-}
-
-.texture-card.glaze-bronze.selected {
-  border-color: #d4a373;
-  background: rgba(45, 39, 34, 0.4);
-  box-shadow: 0 0 20px rgba(212, 163, 115, 0.25);
-}
-.texture-card.glaze-bronze.selected .texture-card-name,
-.texture-card.glaze-bronze.selected .texture-card-symbol,
-.texture-card.glaze-bronze.selected .texture-card-tick {
-  color: #e5ba8f;
 }
 
 /* Dwell progress SVG ring — absolutely positioned inside card */

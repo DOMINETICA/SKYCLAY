@@ -4,33 +4,21 @@ import { useHandTracking } from '../context/HandTrackingProvider';
 const TEXTURES = [
   { id: 'none',   name: 'Smooth',  symbol: '◯' },
   { id: 'ripple', name: 'Ripple',  symbol: '〰' },
-  { id: 'spiral', name: 'Spiral',  symbol: '◎' },
   { id: 'flutes', name: 'Flutes',  symbol: '⫿' },
-  { id: 'knurl',  name: 'Knurl',   symbol: '⬡' },
-  { id: 'bamboo', name: 'Bamboo',  symbol: '≡' },
-];
-
-const GLAZES = [
-  { id: 'terracotta', name: 'Terracotta', symbol: '🧱' },
-  { id: 'speckled',   name: 'Speckled',   symbol: '🪨' },
-  { id: 'cobalt',     name: 'Cobalt',     symbol: '🌀' },
-  { id: 'celadon',    name: 'Celadon',    symbol: '🍃' },
-  { id: 'porcelain',  name: 'Porcelain',  symbol: '🥛' },
-  { id: 'bronze',     name: 'Bronze',     symbol: '🪙' },
+  { id: 'spiral', name: 'Spiral',  symbol: '◎' },
 ];
 
 const DWELL_MS = 1200;
 const CIRC = 2 * Math.PI * 46; // circumference of dwell SVG arc (r=46)
 
 export const TextureMenu = () => {
-  const { leftHand, isPaused, textureMode, glazeMode } = useHandTracking();
+  const { leftHand, isPaused, textureMode } = useHandTracking();
 
   const [visible, setVisible] = useState(false);
   const [cursor, setCursor] = useState({ x: -300, y: -300 });
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [dwellProgress, setDwellProgress] = useState(0);
   const [selectedTexture, setSelectedTexture] = useState('none');
-  const [selectedGlaze, setSelectedGlaze] = useState('terracotta');
 
   const dwellStart    = useRef<number | null>(null);
   const dwellIdxRef   = useRef<number | null>(null);
@@ -51,9 +39,8 @@ export const TextureMenu = () => {
   useEffect(() => {
     if (visible) {
       setSelectedTexture(textureMode.current ?? 'none');
-      setSelectedGlaze(glazeMode.current ?? 'terracotta');
     }
-  }, [visible, textureMode, glazeMode]);
+  }, [visible, textureMode]);
 
   // RAF loop: track hand cursor position and dwell progress when menu is open
   useEffect(() => {
@@ -79,7 +66,7 @@ export const TextureMenu = () => {
         const sy = smoothY.current;
         setCursor({ x: sx, y: sy });
 
-        // Hit-test each card (textures: 0-5, glazes: 6-11)
+        // Hit-test each card
         let found = -1;
         cardRefs.current.forEach((el, idx) => {
           if (!el) return;
@@ -101,15 +88,9 @@ export const TextureMenu = () => {
           setDwellProgress(progress);
 
           if (elapsed >= DWELL_MS) {
-            if (found < 6) {
-              const newId = TEXTURES[found].id;
-              setSelectedTexture(newId);
-              textureMode.current = newId;
-            } else {
-              const newId = GLAZES[found - 6].id;
-              setSelectedGlaze(newId);
-              glazeMode.current = newId;
-            }
+            const newId = TEXTURES[found].id;
+            setSelectedTexture(newId);
+            textureMode.current = newId;
             // Reset dwell so user must re-enter the card to trigger again
             dwellIdxRef.current = null;
             dwellStart.current = null;
@@ -135,7 +116,7 @@ export const TextureMenu = () => {
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [visible, leftHand, textureMode, glazeMode]);
+  }, [visible, leftHand, textureMode]);
 
   if (!visible) return null;
 
@@ -145,11 +126,9 @@ export const TextureMenu = () => {
         <div className="texture-overlay-badge">⏸ Design Paused</div>
 
         <p className="texture-overlay-subtitle">
-          Point your left index finger at a card and hold to apply
+          Point your left index finger at a texture and hold to apply
         </p>
 
-        {/* Section 1: Carving Patterns */}
-        <div className="texture-section-title">Carving Pattern</div>
         <div className="texture-cards">
           {TEXTURES.map((tex, idx) => {
             const isHov = hoveredIdx === idx;
@@ -184,44 +163,7 @@ export const TextureMenu = () => {
           })}
         </div>
 
-        {/* Section 2: Glaze Finishes */}
-        <div className="texture-section-title" style={{ marginTop: '1.5rem' }}>Glaze Finish</div>
-        <div className="texture-cards">
-          {GLAZES.map((glaze, idx) => {
-            const globalIdx = idx + 6;
-            const isHov = hoveredIdx === globalIdx;
-            const isSel = selectedGlaze === glaze.id;
-            const prog = isHov ? dwellProgress : 0;
-
-            return (
-              <div
-                key={glaze.id}
-                ref={el => { cardRefs.current[globalIdx] = el; }}
-                className={`texture-card glaze-${glaze.id}${isSel ? ' selected' : ''}${isHov ? ' hovered' : ''}`}
-              >
-                {/* Dwell progress arc */}
-                {isHov && prog > 0 && (
-                  <svg className="dwell-ring" viewBox="0 0 100 100" aria-hidden="true">
-                    <circle
-                      cx="50" cy="50" r="46"
-                      fill="none"
-                      stroke="#a3c2ff"
-                      strokeWidth="3"
-                      strokeDasharray={`${prog * CIRC} ${CIRC}`}
-                      strokeLinecap="round"
-                      transform="rotate(-90 50 50)"
-                    />
-                  </svg>
-                )}
-                <div className="texture-card-symbol">{glaze.symbol}</div>
-                <div className="texture-card-name">{glaze.name}</div>
-                {isSel && <div className="texture-card-tick">✓</div>}
-              </div>
-            );
-          })}
-        </div>
-
-        <p className="texture-overlay-exit" style={{ marginTop: '1.5rem' }}>
+        <p className="texture-overlay-exit">
           Open your left hand flat and hold for 1 second to resume sculpting
         </p>
       </div>
