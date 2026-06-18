@@ -37,6 +37,7 @@ interface HandTrackingContextProps {
   isCameraReady:  boolean;
   isPaused:       React.RefObject<boolean>;
   textureMode:    React.RefObject<string>;
+  glazeMode:      React.RefObject<string>;
   spreadProgress: React.RefObject<number>;
 }
 
@@ -46,10 +47,11 @@ export const HandTrackingProvider = ({ children, enabled = true }: { children: R
   const webcamRef = useRef<Webcam>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
 
-  const rightHand     = useRef<RightHandState>({ detected: false, mode: 'IDLE', x: 0.5, y: 0.5, landmarks: [] });
-  const leftHand      = useRef<LeftHandState>({ detected: false, mode: 'IDLE', x: 0.5, y: 0.5, landmarks: [] });
-  const isPaused      = useRef(false);
-  const textureMode   = useRef('none');
+  const rightHand      = useRef<RightHandState>({ detected: false, mode: 'IDLE', x: 0.5, y: 0.5, landmarks: [] });
+  const leftHand       = useRef<LeftHandState>({ detected: false, mode: 'IDLE', x: 0.5, y: 0.5, landmarks: [] });
+  const isPaused       = useRef(false);
+  const textureMode    = useRef('none');
+  const glazeMode      = useRef('terracotta');
   const spreadProgress = useRef(0);
 
   useEffect(() => {
@@ -288,7 +290,7 @@ export const HandTrackingProvider = ({ children, enabled = true }: { children: R
 
   return (
     <HandTrackingContext.Provider
-      value={{ rightHand, leftHand, webcamRef, isCameraReady, isPaused, textureMode, spreadProgress }}
+      value={{ rightHand, leftHand, webcamRef, isCameraReady, isPaused, textureMode, glazeMode, spreadProgress }}
     >
       {children}
     </HandTrackingContext.Provider>
