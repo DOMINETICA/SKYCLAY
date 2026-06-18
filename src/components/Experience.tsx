@@ -55,7 +55,7 @@ const ModelControl = ({ modelGroupRef }: { modelGroupRef: React.RefObject<THREE.
 
 /* ─── Moving Clouds (billboard — always face camera) ─── */
 const Clouds = () => {
-  const cloudTex1 = useTexture('/ffdf.png');
+  const cloudTex1 = useTexture(`${import.meta.env.BASE_URL}ffdf.png`);
   const c1Ref = useRef<THREE.Group>(null);
   const c4Ref = useRef<THREE.Group>(null);
   const c5Ref = useRef<THREE.Group>(null);
