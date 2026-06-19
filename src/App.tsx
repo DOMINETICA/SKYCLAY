@@ -50,7 +50,7 @@ const ToolPalette = ({ onReset, onExport, onStretch, onCompress }: {
       </div>
       <div className="tool-text">
         <strong>Textures</strong>
-        Left open palm — hold 1s
+        Left open palm — hold 3.5s
       </div>
     </div>
 

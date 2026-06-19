@@ -91,6 +91,8 @@ export const TextureMenu = () => {
             const newId = TEXTURES[found].id;
             setSelectedTexture(newId);
             textureMode.current = newId;
+            // Automatically resume gameplay on selection
+            isPaused.current = false;
             // Reset dwell so user must re-enter the card to trigger again
             dwellIdxRef.current = null;
             dwellStart.current = null;

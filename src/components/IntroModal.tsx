@@ -49,7 +49,7 @@ const SLIDES = [
         emoji: '🖐',
         anim: 'spread',
         color: '#ffd60a',
-        label: 'Open palm — hold 1s',
+        label: 'Open palm — hold 3.5s',
         hint: 'Freezes the design and opens the texture picker menu',
       },
     ],

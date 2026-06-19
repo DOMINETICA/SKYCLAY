@@ -220,8 +220,9 @@ export const HandTrackingProvider = ({ children, enabled = true }: { children: R
           } else {
             if (spreadHoldStart.current === null) spreadHoldStart.current = Date.now();
             const elapsed = Date.now() - spreadHoldStart.current;
-            spreadProgress.current = Math.min(elapsed / 1000, 1);
-            if (elapsed >= 1000) {
+            const threshold = isPaused.current ? 1000 : 3500;
+            spreadProgress.current = Math.min(elapsed / threshold, 1);
+            if (elapsed >= threshold) {
               isPaused.current         = !isPaused.current;
               spreadHoldStart.current  = null;
               spreadProgress.current   = 0;
